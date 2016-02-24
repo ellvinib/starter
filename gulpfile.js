@@ -1,47 +1,40 @@
 var gulp = require('gulp'),
-    ts = require('gulp-typescript'),
-    concat = require('gulp-concat'),
-    sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
-    minifycss = require('gulp-minify-css'),
-    rename = require('gulp-rename');
+    notify = require('gulp-notify'),
+    ts=  require('gulp-typescript'),
+    livereload = require('gulp-livereload'),
+    inject = require('gulp-inject');
+    
 
- 
-gulp.task('scripts', function() {
-	var tsResult = gulp.src('app/*.ts')
-					   .pipe(sourcemaps.init()) // This means sourcemaps will be generated 
-					   .pipe(ts({
-						   sortOutput: true,
-					   }));	
-	return tsResult.js
-		.pipe(concat('output.js')) // You can use other plugins that also support gulp-sourcemaps 
-		.pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file 
-		.pipe(gulp.dest('release/js'))
-    });
-
-gulp.task('styles', function() {
-  return gulp.src('./app/**/*.scss')
+//---- DEV PART -----
+gulp.task('styles.dev', function() {
+  return gulp.src('app/**/*.scss')
     .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest('build/'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(minifycss())
-    .pipe(gulp.dest('build/'));
+    .pipe(autoprefixer('last 2 version'))
+    .pipe(gulp.dest('.tmp'))
+    .pipe(notify({ message: 'Styles dev task complete' }))
+    .pipe(livereload());
 });
 
-gulp.task('express', function() {
-  var express = require('express');
-  var app = express();
-  app.use(express.static(__dirname));
-  app.listen(4000, '0.0.0.0');
+gulp.task('scripts.dev', function() {
+  return gulp.src('app/**/*.ts')
+		.pipe(ts({
+			declaration: true,
+			noExternalResolve: true
+		}))
+		.pipe(gulp.dest('.tmp'));
 });
 
-
-gulp.task('watch', function() {
-  gulp.watch('app/**/*.scss', ['styles']);
-  gulp.watch('app/**/*.ts', ['scripts']);
+gulp.task('index.dev', function () {
+  // The file where to inject  
+  var target = gulp.src('app/index.html');
+  // It's not necessary to read the files (will speed up things), we're only after their paths: 
+  var sources = gulp.src(['.tmp/**/*.js', '.tmp/**/*.css'], {read: false});
+ 
+  return target.pipe(inject(sources))
+    .pipe(gulp.dest('app'));
 });
 
-gulp.task('default', ['express', 'watch'], function() {
-
+gulp.task('watch.dev',['styles.dev','scripts.dev','index.dev'], function() {
 });
