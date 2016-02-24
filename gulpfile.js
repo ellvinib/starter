@@ -4,7 +4,8 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     ts=  require('gulp-typescript'),
     livereload = require('gulp-livereload'),
-    inject = require('gulp-inject');
+    inject = require('gulp-inject'),
+    connect = require('gulp-connect');
     
 
 //---- DEV PART -----
@@ -31,10 +32,22 @@ gulp.task('index.dev', function () {
   var target = gulp.src('app/index.html');
   // It's not necessary to read the files (will speed up things), we're only after their paths: 
   var sources = gulp.src(['.tmp/**/*.js', '.tmp/**/*.css'], {read: false});
- 
-  return target.pipe(inject(sources))
-    .pipe(gulp.dest('app'));
+
+  return target.pipe(inject(sources,{
+                ignorePath: '.tmp',
+                addRootSlash: false
+            }))
+   .pipe(gulp.dest('./app'));
 });
 
-gulp.task('watch.dev',['styles.dev','scripts.dev','index.dev'], function() {
+gulp.task('webserver.dev', function() {
+  connect.server({
+    root: ['app', '.tmp'],
+    open:true,
+    livereload: true
+  });
 });
+
+
+
+gulp.task('watch.dev',['styles.dev','scripts.dev','index.dev'], function() {});
