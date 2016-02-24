@@ -1,0 +1,22 @@
+{
+  "name": "crazy",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "vincentbouillart <vincentbouillart@live.be>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/vincentbouillart/starter",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "tink-core": "~1.12.4",
+    "bootstrap": "~3.3.6"
+  }
+}

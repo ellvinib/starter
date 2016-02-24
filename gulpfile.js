@@ -13,7 +13,8 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     livereload = require('gulp-livereload'),
     del = require('del'),
-    openResource = require('open');
+    openResource = require('open'),
+    wiredep = require('gulp-wiredep');
 
  
 gulp.task('scripts', function() {
@@ -65,6 +66,14 @@ gulp.task('express', function() {
     });
 });
 
+gulp.task('bower', function () {  
+  gulp.src('./*.html')
+  .pipe(wiredep({
+    directory: './bower_components/',
+    bowerJson: require('./bower.json'),
+  })).pipe(gulp.dest('./'));
+});
+
 
 gulp.task('watch', function() {
   // Create LiveReload server
@@ -75,7 +84,7 @@ gulp.task('watch', function() {
 
 });
 
-gulp.task('default', ['clean'], function() {
+gulp.task('default', ['clean','bower'], function() {
     gulp.start('styles', 'scripts', 'images','watch');
     gulp.start('express');
 });

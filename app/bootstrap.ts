@@ -4,16 +4,16 @@ class Greeter {
         this.greeting = message;
     }
     greet() {
-        return "Hello, " + this.greeting;
+        return "Helloqsd,qsdqd" + this.greeting;
     }
 }
 
-var greeter = new Greeter("world");
+var greeter1 = new Greeter("world");
 
 var button = document.createElement('button');
-button.textContent = "Say Hello";
+button.textContent = "Say Hello eop";
 button.onclick = function() {
-    alert(greeter.greet());
+    alert(greeter1.greet());
 }
 
 document.body.appendChild(button);
