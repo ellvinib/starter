@@ -1,11 +1,19 @@
 var gulp = require('gulp'),
     ts = require('gulp-typescript'),
-    concat = require('gulp-concat'),
-    sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
-    minifycss = require('gulp-minify-css'),
-    rename = require('gulp-rename');
+    cssnano = require('gulp-cssnano'),
+    jshint = require('gulp-jshint'),
+    uglify = require('gulp-uglify'),
+    imagemin = require('gulp-imagemin'),
+    rename = require('gulp-rename'),
+    concat = require('gulp-concat'),
+    notify = require('gulp-notify'),
+    cache = require('gulp-cache'),
+    sourcemaps = require('gulp-sourcemaps'),
+    livereload = require('gulp-livereload'),
+    del = require('del'),
+    openResource = require('open');
 
  
 gulp.task('scripts', function() {
@@ -17,31 +25,57 @@ gulp.task('scripts', function() {
 	return tsResult.js
 		.pipe(concat('output.js')) // You can use other plugins that also support gulp-sourcemaps 
 		.pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file 
-		.pipe(gulp.dest('release/js'))
+		.pipe(gulp.dest('build/js'))
+        .pipe(livereload());
     });
 
 gulp.task('styles', function() {
   return gulp.src('./app/**/*.scss')
     .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer('last 2 version'))
     .pipe(gulp.dest('build/'))
     .pipe(rename({suffix: '.min'}))
-    .pipe(minifycss())
-    .pipe(gulp.dest('build/'));
+    .pipe(cssnano())
+    .pipe(gulp.dest('build/'))
+    .pipe(notify({ message: 'Styles task complete' }))
+    .pipe(livereload());
+});
+
+gulp.task('images', function() {
+  return gulp.src('.app/images/**/*')
+    .pipe(cache(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true })))
+    .pipe(gulp.dest('build/images'))
+    .pipe(notify({ message: 'Images task complete' }));
+});
+
+gulp.task('clean', function() {
+    return del(['build/']);
 });
 
 gulp.task('express', function() {
   var express = require('express');
   var app = express();
+  app.use(require('connect-livereload')());
   app.use(express.static(__dirname));
-  app.listen(4000, '0.0.0.0');
+  app.all('./*', function (req, res, next) {
+        res.sendFile(join(__dirname, './build', 'index.html'));
+    });
+  app.listen(4000, function () {
+        openResource('http://localhost:' + 4000);
+    });
 });
 
 
 gulp.task('watch', function() {
+  // Create LiveReload server
+  livereload.listen();
   gulp.watch('app/**/*.scss', ['styles']);
   gulp.watch('app/**/*.ts', ['scripts']);
+  gulp.watch('app/images/**/*', ['images']);
+
 });
 
-gulp.task('default', ['express', 'watch'], function() {
-
+gulp.task('default', ['clean'], function() {
+    gulp.start('styles', 'scripts', 'images','watch');
+    gulp.start('express');
 });

@@ -1,4 +1,4 @@
-class Greeter {
+class Greeter1 {
     greeting: string;
     constructor(message: string) {
         this.greeting = message;
@@ -8,10 +8,10 @@ class Greeter {
     }
 }
 
-var greeter = new Greeter("world");
+var greeter = new Greeter1("world e");
 
 var button = document.createElement('button');
-button.textContent = "Say Hello";
+button.textContent = "Say Hello no";
 button.onclick = function() {
     alert(greeter.greet());
 }
