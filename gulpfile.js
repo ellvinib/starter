@@ -2,7 +2,7 @@ var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     concat = require('gulp-concat'),
     sourcemaps = require('gulp-sourcemaps'),
-    sass = require('gulp-ruby-sass'),
+    sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     minifycss = require('gulp-minify-css'),
     rename = require('gulp-rename');
@@ -13,8 +13,7 @@ gulp.task('scripts', function() {
 					   .pipe(sourcemaps.init()) // This means sourcemaps will be generated 
 					   .pipe(ts({
 						   sortOutput: true,
-					   }));
-	
+					   }));	
 	return tsResult.js
 		.pipe(concat('output.js')) // You can use other plugins that also support gulp-sourcemaps 
 		.pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file 
@@ -22,7 +21,8 @@ gulp.task('scripts', function() {
     });
 
 gulp.task('styles', function() {
-  return sass('app/', { style: 'expanded' })
+  return gulp.src('./app/**/*.scss')
+    .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('build/'))
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
